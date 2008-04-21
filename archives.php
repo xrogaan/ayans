@@ -4,36 +4,40 @@ require 'includes/config.inc.php';
 require INCLUDES_PATH.'prepend.php';
 require INCLUDES_PATH.'paginate.php';
 
-$pdo = new PDO(DBH);
+try {
+    $pdo = new PDO(DBH);
+} catch (PDOException $e) {
+    die("pdo error: ".$e->getMessage());
+}
+
+$tpl = new templates();
+
+$tpl->addFile('_begin','header.tpl.php');
+$tpl->addFile('_end','footer.tpl.php');
+$tpl->addFile('archives','archives.tpl.php');
+
+$tpl->title = "AYANS archives";
+
+$news = new news_node();
+$news->setPDO($pdo);
+$news->setView(news_node::ARCHIVE_VIEW);
+$news->add_filter('Markdown','text');
+
+// Comment this if you have some charset problems
+$news->add_filter('utf8_decode','title');
+
+$news->add_filter('htmlentities','title');
+$news->add_filter('set_bolder','author');
+
 $dq = $pdo->query('SELECT COUNT(*) as elems FROM news');
 $num = $dq->fetch(PDO::FETCH_ASSOC);
-
 $pages = new paginate($num['elems'],20);
-$dq = $pdo->query('SELECT * FROM news ORDER BY id DESC '.$pages->get_sql_limit_statement());
-$rows = $dq->fetchall();
+
+$tpl->content = $news->render((isset($_GET['reload']) ? true : false),$pages);
+
+
+$tpl->render('archives');
+
+
 
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-<head>
-    <title>News - archives</title>
-</head>
-<body>
-<h1>News - archives</h1>
-<p><a href="index.php">back to home</a></p>
-<?php
-if (empty($rows)) {
-	echo "<p>No news</p>\n";
-} else {
-	echo "<p>".$pages->paginate('archives.php')."</p>";
-	$news = new news_node();
-	$news->add_nodes($rows);
-	$news->add_filter('Markdown','text');
-	$news->add_filter('htmlentities','title');
-	$news->add_filter('set_bolder','author');
-	$reload = isset($_GET['reload']) ? true : false;
-	echo $news->render($reload);
-}
-?>
-</body>
-</html>

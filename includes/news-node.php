@@ -123,17 +123,31 @@ class news_node implements Countable {
     
     private function getNews ($reload=false,$paginate=false) {
         if (!$reload) {
-            $cacheData = scandir(CACHE_PATH, 1);
+            $cacheData = scandir(CACHE_PATH);
+            if ($this->_view == self::ARCHIVE_VIEW) {
+                $elements = $paginate->elements;
+                $limit = explode(', ',str_replace('LIMIT ','',$paginate->get_sql_limit_statement()));
+            }
             foreach ($cacheData as $file) {
                 if ($file[0] == '.') {
                     continue;
                 }
+                $id = substr($file,2);
+                if ($this->_view == self::ARCHIVE_VIEW) {
+                    if ($id-1 < intval($limit[0])) {
+                        continue;
+                    }
+                    if ($id-1 > intval($limit[1])) {
+                        break;
+                    }
+                }
                 $allnodes[] = array (
-                    'id' => substr($file,1),
+                    'id' => $id,
                     'type' => 'cache',
                     'data' => file_get_contents(CACHE_PATH.$file)
                 );
             }
+            $allnodes = array_reverse($allnodes);
             self::add_nodes($allnodes);
         } else {
             switch ($this->_view) {
