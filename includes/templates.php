@@ -76,6 +76,21 @@ class templates {
             $this->_escape[] = $ref;
         }
     }
+    
+    public function remEscape($ref,$id=false) {
+        if ($id && isset($this->_escape[$id])) {
+            unset($this->_escape[$id]);
+            return true;
+        } elseif (!$id) {
+            foreach ($this->_escape as $key => $val) {
+                if ($val == $ref) {
+                    unset($this->_escape[$key]);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     public function escape($var) {
         foreach($this->_escape as $fnct) {

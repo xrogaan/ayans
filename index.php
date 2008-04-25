@@ -22,7 +22,7 @@ $news->setPDO($pdo);
 $news->setView(news_node::DEFAULT_VIEW);
 $news->add_filter('Markdown','text');
 
-// Comment this if you have some charset problems
+// Comment this if you have some charset problems in cache
 $news->add_filter('utf8_decode','title');
 // -----
 
