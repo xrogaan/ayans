@@ -3,12 +3,20 @@
 require 'includes/config.inc.php';
 require INCLUDES_PATH.'prepend.php';
 
+$tpl = new templates();
+
+$tpl->addFile('_begin','header.tpl.php');
+$tpl->addFile('_end','footer.tpl.php');
+$tpl->addFile('save','save.tpl.php');
+
 $password_fail = false;
-$title = (!empty($_POST['title'])) ? trim($_POST['title']) : 'Your title...';
-$text = (!empty($_POST['text'])) ? trim($_POST['text']) : 'Your news...';
+$tpl->input_title = (!empty($_POST['title'])) ? trim($_POST['title']) : 'Your title...';
+$tpl->input_text = (!empty($_POST['text'])) ? trim($_POST['text']) : 'Your news...';
+
+$tpl->title = "AYANS save news";
 
 if (isset($_POST['password']) && PASSWORD != sha1($_POST['password'])) {
-	$password_fail = true;die('fail !');
+	$tpl->password_fail = true;
 } elseif (isset($_POST['password']) && PASSWORD == sha1($_POST['password'])) {
     try {
         $pdo = new PDO(DBH);
@@ -36,34 +44,6 @@ if (isset($_POST['password']) && PASSWORD != sha1($_POST['password'])) {
 
 }
 
-?>
-<html>
-<head>
-<title>Insert News</title>
-</head>
-<body>
-<div id="editor">
-    <h1>Insert News</h1>
-    <p><a href="index.php">back to home</a></p>
-<?php
-if ($password_fail) {
-	echo "<div id=\"notice\">Can't login. Please check your password.</div>";
-}
-?>
-    <div id="content">
-        <form action="save.php" method="post">
-            <input type="text" name="title" value="<?php echo $title ?>" size="80" /><br />
-            <textarea name="text" id="text" cols="80" rows="23"><?php echo $text ?></textarea>
-            <p><small>
-            news documents are written using <a href="http://daringfireball.net/projects/markdown/syntax">Markdown syntax</a>.
-            </small></p>
+$tpl->render('save');
 
-            <p align="right">
-                <strong>Password:</strong> <input type='password' name='password' size='20'/><br />
-                <input type="submit" value="Share" />
-            </p>
-        </form>
-    </div>
-</div>
-</body>
-</html>
+?>
