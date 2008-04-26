@@ -1,0 +1,3 @@
+syntax: glob
+news.sq3
+*.*~
