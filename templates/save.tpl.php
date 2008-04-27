@@ -7,7 +7,7 @@ if ($this->password_fail) {
 }
 ?>
     <div id="content">
-        <form action="save.php" method="post">
+        <form action="<?php echo $this->action ?>" method="post">
             <input type="text" name="title" value="<?php echo $this->input_title ?>" size="80" /><br />
             <textarea name="text" id="text" cols="80" rows="23"><?php echo $this->input_text ?></textarea>
             <p><small>

@@ -28,6 +28,10 @@ class news_node implements Countable {
     const SEARCH_VIEW = 0xE925030B;
     const ARCHIVE_VIEW = 0x9A2B1B01;
     
+    public $_default_view_options = array(
+        'sql_limit' => '0, 10',
+    );
+    
     function __construct() {
         $this->_view = self::DEFAULT_VIEW;
     }
@@ -124,15 +128,18 @@ class news_node implements Countable {
     private function getNews ($reload=false,$paginate=false) {
         if (!$reload) {
             $cacheData = scandir(CACHE_PATH);
+            // custom action for ARCHIVE_VIEW
             if ($this->_view == self::ARCHIVE_VIEW) {
                 $elements = $paginate->elements;
                 $limit = explode(', ',str_replace('LIMIT ','',$paginate->get_sql_limit_statement()));
             }
+            // ---
             foreach ($cacheData as $file) {
                 if ($file[0] == '.') {
                     continue;
                 }
                 $id = substr($file,2);
+                // custom action for ARCHIVE_VIEW
                 if ($this->_view == self::ARCHIVE_VIEW) {
                     if ($id-1 < intval($limit[0])) {
                         continue;
@@ -141,18 +148,23 @@ class news_node implements Countable {
                         break;
                     }
                 }
+                // ---
                 $allnodes[] = array (
                     'id' => $id,
                     'type' => 'cache',
                     'data' => file_get_contents(CACHE_PATH.$file)
                 );
             }
-            $allnodes = array_reverse($allnodes);
-            self::add_nodes($allnodes);
+            if (!isset($allnodes)) {
+                $this->_content[]['data'] = '<p>no news in database</p>';
+            } else {
+                $allnodes = array_reverse($allnodes);
+                self::add_nodes($allnodes);
+            }
         } else {
             switch ($this->_view) {
                 case self::DEFAULT_VIEW:
-                    $PDOStatement = $this->_PDO->query('SELECT * FROM news ORDER BY id DESC LIMIT 0, 10');
+                    $PDOStatement = $this->_PDO->query('SELECT * FROM news ORDER BY id DESC LIMIT '.$this->_default_view_options['sql_limit']);
                     break;
                 case self::SEARCH_VIEW:
                     break;
@@ -170,6 +182,9 @@ class news_node implements Countable {
         }
     }
     
+    /**
+     * Make all files in cache directory
+     */
     private function reloadCache() {
         $txt='';
         foreach($this->_content as $key => $data) {
