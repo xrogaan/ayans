@@ -22,6 +22,7 @@ try {
     }
     
     $tpl->password_fail = false;
+    $tpl->updated = false;
     if (isset($_POST['password']) && PASSWORD != sha1($_POST['password'])) {
         $tpl->password_fail = true;
     } else {
@@ -33,6 +34,8 @@ try {
             $x = $pdo->errorInfo();
             echo 'errorCode: ',$x[0],'<br/>errorMessage: ',$x[2];
             die;
+        } else {
+            $tpl->updated = true;
         }
     }
     

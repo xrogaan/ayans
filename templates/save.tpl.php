@@ -5,6 +5,12 @@
 if ($this->password_fail) {
     echo "<div id=\"notice\">Can't login. Please check your password.</div>";
 }
+if (isset($this->updated) && $tpl->updated == true) {
+?>
+<p>Post fully updated.</p>
+</div>
+<?php
+} else {
 ?>
     <div id="content">
         <form action="<?php echo $this->action ?>" method="post">
@@ -21,3 +27,6 @@ if ($this->password_fail) {
         </form>
     </div>
 </div>
+<?php
+}
+?>
