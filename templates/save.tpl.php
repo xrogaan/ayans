@@ -1,11 +1,18 @@
 <div id="editor">
-    <h1>Insert News</h1>
+<?php
+if (defined('ON_EDIT')) {
+    $title = "Edit news";
+} else {
+    $title = "Insert News";
+}
+?>
+    <?php echo "<h1>$title</h1>"; ?>
     <p><a href="index.php">back to home</a></p>
 <?php
 if ($this->password_fail) {
     echo "<div id=\"notice\">Can't login. Please check your password.</div>";
 }
-if (isset($this->updated) && $tpl->updated == true) {
+if (isset($this->updated) && $this->updated == true) {
 ?>
 <p>Post fully updated.</p>
 </div>
