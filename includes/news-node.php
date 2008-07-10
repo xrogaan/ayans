@@ -27,6 +27,9 @@ class news_node implements Countable {
     const DEFAULT_VIEW = 0xEFFFF69C;
     const SEARCH_VIEW = 0xE925030B;
     const ARCHIVE_VIEW = 0x9A2B1B01;
+
+    const FORMAT_LIGHT = 'formatLight';
+    const FORMAT_FULL  = 'formatFull';
     
     public $_default_view_options = array(
         'sql_limit' => '0, 10',
@@ -149,6 +152,9 @@ class news_node implements Countable {
                     }
                 }
                 // ---
+                if ($format == self::FORMAT_LIGHT) {
+                    $file.= '.minimal';
+                }
                 $allnodes[] = array (
                     'id' => $id,
                     'type' => 'cache',
@@ -169,10 +175,14 @@ class news_node implements Countable {
                 case self::SEARCH_VIEW:
                     break;
                 case self::ARCHIVE_VIEW:
-                    if ($paginate instanceof paginate) {
-                        $PDOStatement = $this->_PDO->query('SELECT * FROM news ORDER BY id DESC '.$paginate->get_sql_limit_statement());
+                    if ($format == self::FORMAT_FULL) {
+                        $PDOStatement = $this->_PDO->query('SELECT * FROM news ORDER BY id DESC LIMIT '.$this->_default_view_options['sql_limit']);
                     } else {
-                        throw new News_Node_Exception('$paginate is not a instance of paginate object.');
+                        if ($paginate instanceof paginate) {
+                            $PDOStatement = $this->_PDO->query('SELECT * FROM news ORDER BY id DESC '.$paginate->get_sql_limit_statement());
+                        } else {
+                            throw new News_Node_Exception('$paginate is not a instance of paginate object.');
+                        }
                     }
                     break;
                 default:

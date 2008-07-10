@@ -1,7 +1,20 @@
 <?php
+/**
+* @category News
+* @package News_Templates
+* @copyright Copyright (c) 2008, Bellière Ludovic
+* @license http://opensource.org/licenses/mit-license.php MIT license
+*/
 
 class templates_exception extends Exception {}
 
+/**
+* @author Bellière Ludovic
+* @category News
+* @package News_Templates
+* @copyright Copyright (c) 2008, Bellière Ludovic
+* @license http://opensource.org/licenses/mit-license.php MIT license
+*/
 class templates {
     /**
      * File list
@@ -23,14 +36,26 @@ class templates {
         $this->_templatePath = $template_path;
     }
 
+    /**
+     * Return the current tempalte path
+     */
     public function getTemplatePath() {
         return $this->_templatePath;
     }
 
+    /**
+     * Add a template file
+     */
     public function addFile($tag,$name) {
         $this->_files[$tag] = $name;
     }
 
+    /**
+     * Process the templates files by $tag
+     * $tag can be an array for multi-templates page.
+     *
+     * @param array|string $tag
+     */
     public function render($tag) {
         try {
             if (!is_array($tag)) {
@@ -63,6 +88,11 @@ class templates {
         } catch (Exception $e) { die('ex error: '.$e->getMessage()); }
     }
 
+    /**
+     * Check if the template file is readable and returns its name
+     *
+     * @param string $tag
+     */
     private function _file($tag) {
         if (is_readable($this->_templatePath.$this->_files[$tag])) {
             return $this->_templatePath.$this->_files[$tag];
@@ -71,12 +101,20 @@ class templates {
         }
     }
 
+    /**
+     * Used to set some functions who escape the content
+     *
+     * @param function $ref
+     */
     public function setEscape($ref) {
         if (!in_array($ref,$this->_escape)) {
             $this->_escape[] = $ref;
         }
     }
-    
+
+    /**
+     * Used to remove a function from the pool of escape
+     */
     public function remEscape($ref,$id=false) {
         if ($id && isset($this->_escape[$id])) {
             unset($this->_escape[$id]);
