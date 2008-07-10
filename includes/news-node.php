@@ -198,12 +198,21 @@ class news_node implements Countable {
     private function reloadCache() {
         $txt='';
         foreach($this->_content as $key => $data) {
+            $min_tmp = '';
             $txt_tmp = '<h2 id="'.$key.'">'.self::escape($data['title'],'title').'</h2>'."\n";
             $txt_tmp.= '<p><sup><a href="#'.$key.'">#'.$key.'</a> On '.date('r',$data['postedon']).' by '.self::escape($data['author'],'author')."</sup></p>\n";
             $txt_tmp.= ''.self::escape($data['text'],'text')."\n";
+            
+            file_put_contents(CACHE_PATH.$key.'.minimal',$min_tmp);
             file_put_contents(CACHE_PATH.$key,$txt_tmp);
-            $txt.=$txt_tmp;
-            unset($txt_tmp);
+            
+            if ($format == self::FORMAT_FULL) {
+                $txt.=$txt_tmp;
+            } else {
+                $txt.=$min_tmp;
+            }
+            
+            unset($txt_tmp,$min_tmp);
         }
         return $txt;
     }
