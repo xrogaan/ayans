@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ALL);
+
 define('DEBUG',true);
 
 // default sha1 : test

@@ -17,6 +17,8 @@ class News_Node_Exception extends Exception {}
 */
 class news_node implements Countable {
 
+    public $_dateFormat = 'r';
+    public $_dateFormatMinimal = 'd.m.o';
     protected $_content = array();
     protected $_count = 0;
     private $_filters = array();
@@ -36,7 +38,7 @@ class news_node implements Countable {
         'sql_limit' => '0, 10',
     );
     
-    function __construct() {
+    public function __construct() {
         $this->_view = self::DEFAULT_VIEW;
     }
     
@@ -47,7 +49,21 @@ class news_node implements Countable {
     public function setPDO (PDO $pdo) {
         $this->_PDO = $pdo;
     }
-    
+
+    /**
+     * Set the date format. If not used, default values will be used.
+     * @param string $formatFull Used for the full news view.
+     * @param string $formatLight Used for the light news view.
+     */
+    public function setDateFormat ($formatFull, $formatLight) {
+        $this->_dateFormat        = $formatFull;
+        $this->_dateFormatMinimal = $formatLight;
+    }
+
+    /**
+     * Get a row by his id.
+     * If raw is true, get the row without escapement.
+     */
     public function get ($key, $raw=false) {
         if (is_array($key)) {
             foreach ($key as $parent_key => $child_key) {
@@ -92,7 +108,7 @@ class news_node implements Countable {
         }
     }
 
-    public function render($reload=false,$paginate=false) {
+    public function render($reload=false, $paginate=false, $format='formatFull') {
         try {
             self::getNews($reload,$paginate);
         } catch (News_Node_Exception $e) {
@@ -100,7 +116,7 @@ class news_node implements Countable {
         }
         $txt = '';
         if ($reload) {
-            $txt = self::reloadCache();
+            $txt = self::reloadCache($format);
         } else {
             foreach ($this->_content as $node) {
                 $txt.= $node['data'];
@@ -119,6 +135,18 @@ class news_node implements Countable {
         return true;
     }
 
+    protected function getDate($timestamp,$context) {
+        switch ($context) {
+            case self::FORMAT_LIGHT:
+                $date = date($this->_dateFormatMinimal,$timestamp);
+                break;
+            case self::FORMAT_FULL:
+                $date = date($this->_dateFormat,$timestamp);
+                break;
+        }
+        return $date;
+    }
+
     protected function add_nodes(array $content) {
         foreach ($content as $node) {
             if (!isset($this->_content['n-'.$node['id']])) {
@@ -132,7 +160,7 @@ class news_node implements Countable {
         foreach($this->_filters as $node => $filters) {
             if ($node == 'all' || $tag == $node) {
                 foreach ($filters as $filter) {
-                    $content = call_user_func($filter,$content);
+                    $content = call_user_func_array($filter,array(&$content));
                 }
             }
         }
@@ -210,22 +238,27 @@ class news_node implements Countable {
     /**
      * Write all files in cache directory
      */
-    private function reloadCache() {
+    private function reloadCache($format='full') {
         $txt='';
-        $searchedTags = array('%key%', '%title%', '%text%', '%postdate%', '%editdate%', '%author%');
+        $searchedTags = array('%key%', '%title%', '%text%', '%author%');
         foreach($this->_content as $key => $data) {
             $replaceString = array(
                 $key,
                 self::escape($data['title'],'title'),
                 self::escape($data['text'],'text'),
-                date('r',$data['postedon']),
-                ($data['editdon'] == '') ? 'Never' : date('r',$data['editdon']),
                 self::escape($data['author'],'author'),
+            );
+            $replaceDate = array(
+                self::getDate($data['postedon'],self::FORMAT_FULL),
+                (isset($data['editdon'])) ? self::getDate($data['editdon'],self::FORMAT_LIGHT) : 'Never'
             );
             $txt_tmp = file_get_contents('templates/_newsFull.tpl');
             $txt_tmp = str_replace($searchedTags, $replaceString,$txt_tmp);
+            $txt_tmp = str_replace(array('%postdate%', '%editdate%'),$replaceDate,$txt_tmp);
+
             $min_tmp = file_get_contents('templates/_newsMinimal.tpl');
             $min_tmp = str_replace($searchedTags, $replaceString,$min_tmp);
+            $min_tmp = str_replace(array('%postdate%', '%editdate%'),$replaceDate,$min_tmp);
             
             file_put_contents(CACHE_PATH.$key.'.minimal',$min_tmp);
             file_put_contents(CACHE_PATH.$key,$txt_tmp);
