@@ -23,6 +23,7 @@ class news_node implements Countable {
     private $_requiered_keynode;
     private $_PDO;
     private $_view;
+    private $_searchString;
     
     const DEFAULT_VIEW = 0xEFFFF69C;
     const SEARCH_VIEW = 0xE925030B;
@@ -41,15 +42,6 @@ class news_node implements Countable {
     
     public function setView($view) {
         $this->_view = $view;
-    }
-
-    public function add_nodes(array $content) {
-        foreach ($content as $node) {
-            if (!isset($this->_content['n-'.$node['id']])) {
-                $this->_content['n-'.$node['id']] = $node;
-                $this->_count++;
-            }
-        }
     }
     
     public function setPDO (PDO $pdo) {
@@ -117,6 +109,25 @@ class news_node implements Countable {
         return $txt;
     }
 
+    /**
+     * Searches news for needle.
+     * @param string $needle The searched value.
+     */
+    public function search($needle) {
+        $this->_searchString = $needle;
+        self::setView(self::SEARCH_VIEW);
+        return true;
+    }
+
+    protected function add_nodes(array $content) {
+        foreach ($content as $node) {
+            if (!isset($this->_content['n-'.$node['id']])) {
+                $this->_content['n-'.$node['id']] = $node;
+                $this->_count++;
+            }
+        }
+    }
+
     protected function escape ($content,$tag) {
         foreach($this->_filters as $node => $filters) {
             if ($node == 'all' || $tag == $node) {
@@ -127,7 +138,10 @@ class news_node implements Countable {
         }
         return $content;
     }
-    
+
+    /**
+     * Fetch all data from cache or database.
+     */
     private function getNews ($reload=false,$paginate=false) {
         if (!$reload) {
             $cacheData = scandir(CACHE_PATH);
@@ -173,6 +187,7 @@ class news_node implements Countable {
                     $PDOStatement = $this->_PDO->query('SELECT * FROM news ORDER BY id DESC LIMIT '.$this->_default_view_options['sql_limit']);
                     break;
                 case self::SEARCH_VIEW:
+                    $PDOStatement = $this->_PDO->query('SELECT * FROM news WHERE text LIKE \'%'.addslashes($this->_searchString).'%\' ORDER BY id DESC');
                     break;
                 case self::ARCHIVE_VIEW:
                     if ($format == self::FORMAT_FULL) {
@@ -193,15 +208,24 @@ class news_node implements Countable {
     }
     
     /**
-     * Make all files in cache directory
+     * Write all files in cache directory
      */
     private function reloadCache() {
         $txt='';
+        $searchedTags = array('%key%', '%title%', '%text%', '%postdate%', '%editdate%', '%author%');
         foreach($this->_content as $key => $data) {
-            $min_tmp = '';
-            $txt_tmp = '<h2 id="'.$key.'">'.self::escape($data['title'],'title').'</h2>'."\n";
-            $txt_tmp.= '<p><sup><a href="#'.$key.'">#'.$key.'</a> On '.date('r',$data['postedon']).' by '.self::escape($data['author'],'author')."</sup></p>\n";
-            $txt_tmp.= ''.self::escape($data['text'],'text')."\n";
+            $replaceString = array(
+                $key,
+                self::escape($data['title'],'title'),
+                self::escape($data['text'],'text'),
+                date('r',$data['postedon']),
+                ($data['editdon'] == '') ? 'Never' : date('r',$data['editdon']),
+                self::escape($data['author'],'author'),
+            );
+            $txt_tmp = file_get_contents('templates/_newsFull.tpl');
+            $txt_tmp = str_replace($searchedTags, $replaceString,$txt_tmp);
+            $min_tmp = file_get_contents('templates/_newsMinimal.tpl');
+            $min_tmp = str_replace($searchedTags, $replaceString,$min_tmp);
             
             file_put_contents(CACHE_PATH.$key.'.minimal',$min_tmp);
             file_put_contents(CACHE_PATH.$key,$txt_tmp);
