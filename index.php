@@ -28,7 +28,7 @@ $news->add_filter('utf8_decode','title');
 
 $news->add_filter('htmlentities','title');
 $news->add_filter('set_bolder','author');
-$tpl->content = $news->render(isset($_GET['reload']) ? true : false);
+$tpl->content = $news->render((isset($_GET['reload']) ? true : false), true, news_node::FORMAT_FULL);
 
 
 

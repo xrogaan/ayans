@@ -110,7 +110,7 @@ class news_node implements Countable {
 
     public function render($reload=false, $paginate=false, $format='formatFull') {
         try {
-            self::getNews($reload,$paginate);
+            self::getNews($reload,$paginate,$format);
         } catch (News_Node_Exception $e) {
             die ($e->getMessage());
         }
@@ -160,7 +160,7 @@ class news_node implements Countable {
         foreach($this->_filters as $node => $filters) {
             if ($node == 'all' || $tag == $node) {
                 foreach ($filters as $filter) {
-                    $content = call_user_func_array($filter,array(&$content));
+                    $content = call_user_func($filter,$content);
                 }
             }
         }
@@ -170,22 +170,22 @@ class news_node implements Countable {
     /**
      * Fetch all data from cache or database.
      */
-    private function getNews ($reload=false,$paginate=false) {
+    private function getNews ($reload=false, $paginate=false, $format='formatFull') {
         if (!$reload) {
             $cacheData = scandir(CACHE_PATH);
             // custom action for ARCHIVE_VIEW
-            if ($this->_view == self::ARCHIVE_VIEW) {
+            if ($this->_view == self::ARCHIVE_VIEW && $format == self::FORMAT_FULL) {
                 $elements = $paginate->elements;
                 $limit = explode(', ',str_replace('LIMIT ','',$paginate->get_sql_limit_statement()));
             }
             // ---
             foreach ($cacheData as $file) {
-                if ($file[0] == '.') {
+                if ($file[0] == '.' || strpos($file,'.minimal')) {
                     continue;
                 }
                 $id = substr($file,2);
                 // custom action for ARCHIVE_VIEW
-                if ($this->_view == self::ARCHIVE_VIEW) {
+                if ($this->_view == self::ARCHIVE_VIEW && $format == self::FORMAT_FULL) {
                     if ($id-1 < intval($limit[0])) {
                         continue;
                     }
