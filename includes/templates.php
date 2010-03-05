@@ -29,15 +29,20 @@ class templates {
      * @var string
      */
     protected $_templatePath;
+    
+    protected $_options = array();
 
     private $_escape = array('htmlentities');
 
-    public function __construct($template_path='./templates/') {
+    public function __construct($template_path='./templates/',$options=array()) {
         $this->_templatePath = $template_path;
+        $this->_options = array_merge($this->_options,$options);
     }
 
     /**
      * Return the current tempalte path
+     *
+     * @return string
      */
     public function getTemplatePath() {
         return $this->_templatePath;
@@ -45,6 +50,10 @@ class templates {
 
     /**
      * Add a template file
+     *
+     * @param string $tag Template id
+     * @param string $name Template filename.
+     * @return void
      */
     public function addFile($tag,$name) {
         $this->_files[$tag] = $name;
@@ -85,7 +94,9 @@ class templates {
            ob_end_flush();
         } catch (templates_exception $e) {
             die ($e->getMessage());
-        } catch (Exception $e) { die('ex error: '.$e->getMessage()); }
+        } catch (Exception $e) {
+            die('ex error: '.$e->getMessage());
+        }
     }
 
     /**
@@ -114,6 +125,10 @@ class templates {
 
     /**
      * Used to remove a function from the pool of escape
+     *
+     * @param function $ref
+     * @param boolean $id
+     * @return boolean
      */
     public function remEscape($ref,$id=false) {
         if ($id && isset($this->_escape[$id])) {
@@ -130,6 +145,9 @@ class templates {
         return false;
     }
 
+    /**
+     * Force string $var escaping.
+     */
     public function escape($var) {
         foreach($this->_escape as $fnct) {
             if (in_array($fnct, array('htmlentities','htmlspecialchars'))) {
@@ -140,7 +158,7 @@ class templates {
         }
         return $var;
     }
-
+    
     public function __isset($key) {
         $strpos = strpos($key,'_');
         if (!is_bool($strpos) && $strpos !== 0) {
