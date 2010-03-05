@@ -2,7 +2,7 @@
 /**
 * @category News
 * @package News_Node
-* @copyright Copyright (c) 2008, Bellière Ludovic
+* @copyright Copyright (c) 2008-2010, Bellière Ludovic
 * @license http://opensource.org/licenses/mit-license.php MIT license
 */
 
@@ -12,7 +12,7 @@ class News_Node_Exception extends Exception {}
 * @author Bellière Ludovic
 * @category News
 * @package News_Node
-* @copyright Copyright (c) 2008, Bellière Ludovic
+* @copyright Copyright (c) 2008-2010, Bellière Ludovic
 * @license http://opensource.org/licenses/mit-license.php MIT license
 */
 class news_node implements Countable {
@@ -263,10 +263,13 @@ class news_node implements Countable {
             file_put_contents(CACHE_PATH.$key.'.minimal',$min_tmp);
             file_put_contents(CACHE_PATH.$key,$txt_tmp);
             
-            if ($format == self::FORMAT_FULL) {
-                $txt.=$txt_tmp;
-            } else {
-                $txt.=$min_tmp;
+            switch ($format) {
+                case self::FORMAT_FULL:
+                    $txt.=$txt_tmp;
+                    break;
+                case self::FORMAT_LIGHT:
+                    $txt.=$min_tmp;
+                    break;
             }
             
             unset($txt_tmp,$min_tmp);
@@ -282,7 +285,7 @@ class news_node implements Countable {
         return $this->_content[$key];
     }
 
-    protected function __isset($name) {
+    public function __isset($name) {
         return isset($this->_content[$name]);
     }
 
