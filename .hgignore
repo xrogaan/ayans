@@ -1,0 +1,4 @@
+syntax: glob
+news.sq3
+*.*~
+cache/n-*
