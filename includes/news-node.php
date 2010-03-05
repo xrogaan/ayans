@@ -38,20 +38,34 @@ class news_node implements Countable {
         'sql_limit' => '0, 10',
     );
     
+    /**
+     * Constructor, nothing special.
+     */
     public function __construct() {
         $this->_view = self::DEFAULT_VIEW;
     }
     
+    /**
+     * Define the current output mode.
+     *
+     * @param string $view
+     */
     public function setView($view) {
         $this->_view = $view;
     }
     
+    /**
+     * Define the PDO object
+     * 
+     * @param PDO $pdo
+     */
     public function setPDO (PDO $pdo) {
         $this->_PDO = $pdo;
     }
 
     /**
      * Set the date format. If not used, default values will be used.
+     *
      * @param string $formatFull Used for the full news view.
      * @param string $formatLight Used for the light news view.
      */
@@ -63,17 +77,29 @@ class news_node implements Countable {
     /**
      * Get a row by his id.
      * If raw is true, get the row without escapement.
+     *
+     * @param mixed   $key
+     * @param boolean $raw
      */
     public function get ($key, $raw=false) {
-        if (is_array($key)) {
-            foreach ($key as $parent_key => $child_key) {
-                if (array_key_exists($child_key,$this->_content[$parent_key])) {
-                    return (!is_array($this->_content[$parent_key]) && $raw == true) ? self::escape($this->_content[$parent_key]) : $this->_content[$parent_key];
+        if (is_array($key))
+        {
+            foreach ($key as $parent_key => $child_key)
+            {
+                if (array_key_exists($child_key,$this->_content[$parent_key]))
+                {
+                    if (!is_array($this->_content[$parent_key]) && $raw == true)
+                    {
+                        return self::escape($this->_content[$parent_key]);
+                    } else {
+                        return $this->_content[$parent_key];
+                    }
                 }
             }
         }
 
-        if (array_key_exists($key,$this->_content)) {
+        if (array_key_exists($key,$this->_content))
+        {
             return (!is_array($this->_content[$parent_key]) && $raw == true) ? self::escape($this->_content[$parent_key]) : $this->_content[$parent_key];
         }
     }
