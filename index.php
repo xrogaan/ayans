@@ -1,13 +1,26 @@
 <?php
 
+require_once('FirePHPCore/FirePHP.class.php');
+$firephp = FirePHP::getInstance(true);
+$firephp->registerErrorHandler(true);
+$firephp->registerExceptionHandler();
+$firephp->registerAssertionHandler(true, false);
+
 require 'includes/config.inc.php';
 require INCLUDES_PATH.'prepend.php';
 
-$page = (!empty($_GET['p']))?:'index';
+if (APPLICATION_ENVIRONMENT == 'production') {
+    $firephp->setEnabled(false);
+}
+
+$page = (!empty($_GET['p']))?$_GET['p']:'index';
+$firephp->log($page, 'pagename');
 
 try {
-    $pdo = new PDO(DBH);
-    $tpl = new templates();
+    $pdo  = new PDO(DBH);
+    $tpl  = new templates();
+    $news = new news_node();
+    $tpl->title = "empty";
     
     $tpl->addFile('_begin','header.tpl.php');
     $tpl->addFile('_end','footer.tpl.php');
@@ -15,10 +28,13 @@ try {
     
     switch($page)
     {
-        case 'index':
+        default:
+            if (file_exists('pages/' . $page . 'mdtxt') && is_readable('pages/' . $page . 'mdtxt')) {
+                $pageContent = file_get_contents('pages/' . $page . 'mdtxt');
+                $tpl->content = Markdown($pageContent);
+            }
             break;
         case 'news':
-            $news = new news_node();
             $news->setPDO($pdo);
             $news->setView(news_node::DEFAULT_VIEW);
             $news->add_filter('Markdown','text');
@@ -54,8 +70,6 @@ try {
     exit(1);
 }
 
-
-
-$tpl->render('index');
+echo $tpl->render('index');
 
 ?>
