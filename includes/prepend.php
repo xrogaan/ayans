@@ -1,6 +1,6 @@
 <?php
 
-if (DEBUG == true) {
+if (APPLICATION_ENVIRONMENT != 'production') {
 	error_reporting(E_ALL);
 }
 
