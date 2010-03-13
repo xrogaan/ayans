@@ -33,10 +33,12 @@ class templates {
     protected $_options = array();
 
     private $_escape = array('htmlentities');
+    protected $_firephp;
 
     public function __construct($template_path='./templates/',$options=array()) {
         $this->_templatePath = $template_path;
         $this->_options = array_merge($this->_options,$options);
+        $this->_firephp = FirePHP::getInstance();
     }
 
     /**
@@ -66,30 +68,24 @@ class templates {
      * @param array|string $tag
      */
     public function render($tag) {
+        $this->_firephp->log($this->_files,'Templates');
         ob_start();
         try {
+            if (isset($this->_files['_begin'])) {
+                include_once $this->_file('_begin');
+            }
             if (!is_array($tag)) {
-                if (isset($this->_files['_begin'])) {
-                    include $this->_file('_begin');
-                }
-                include $this->_file($tag);
-                if (isset($this->_files['_end'])) {
-                    include $this->_file('_end');
-                }
-                //return ob_end_clean();
+                include_once $this->_file($tag);
             } else {
-                if (isset($this->_files['_begin'])) {
-                    include $this->_file('_begin');
-                }
                 $tags = $tag;
                 unset($tag);
                 foreach ($tags as $tag) {
-                    include $this->_file($tag);
-                }
-                if (isset($this->_files['_end'])) {
-                    include $this->_file('_end');
+                    include_once $this->_file($tag);
                 }
            }
+            if (isset($this->_files['_end'])) {
+                include_once $this->_file('_end');
+            }
         } catch (templates_exception $e) {
             ob_end_clean();
             die ($e->getMessage());
@@ -97,7 +93,8 @@ class templates {
             ob_end_clean();
             die('ex error: '.$e->getMessage());
         }
-        return ob_get_clean();
+        $out = ob_get_clean();
+        return $out;
     }
 
     /**
