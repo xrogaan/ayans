@@ -66,9 +66,9 @@ class templates {
      * @param array|string $tag
      */
     public function render($tag) {
+        ob_start();
         try {
             if (!is_array($tag)) {
-                ob_start();
                 if (isset($this->_files['_begin'])) {
                     include $this->_file('_begin');
                 }
@@ -78,7 +78,6 @@ class templates {
                 }
                 //return ob_end_clean();
             } else {
-                ob_start();
                 if (isset($this->_files['_begin'])) {
                     include $this->_file('_begin');
                 }
@@ -91,12 +90,14 @@ class templates {
                     include $this->_file('_end');
                 }
            }
-           ob_end_flush();
         } catch (templates_exception $e) {
+            ob_end_clean();
             die ($e->getMessage());
         } catch (Exception $e) {
+            ob_end_clean();
             die('ex error: '.$e->getMessage());
         }
+        return ob_get_clean();
     }
 
     /**
