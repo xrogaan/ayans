@@ -1,0 +1,9 @@
+Options +FollowSymLinks -Indexes -MultiViews
+
+RewriteEngine On
+RewriteBase /poyon/website
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} /.* [OR]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*) index.php?p=$1 [L]
