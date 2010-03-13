@@ -160,6 +160,56 @@ class templates {
         return $var;
     }
     
+    public function assign($name,$data=null) {
+        try {
+            if (is_string($name)) {
+                self::__set($name, $data);
+            } elseif (is_array($name)) {
+                foreach ($name as $key => $value) {
+                    self::__set($key,$value);
+                }
+            } else {
+                throw new templates_exception('Argument 2 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be a string or an array, ' . gettype($arguments) . ' given.');
+            }
+        } catch (Taplod_Templates_Exception $e) {
+            throw $e;
+        }
+        return $this;
+    }
+    
+    /**
+     * Remove all variable assigned via __set()
+     * @return void
+     */
+    public function clearVars () {
+        $vars = get_object_vars($this);
+        foreach ($vars as $key => $value) {
+            if (substr($key, 0, 1) != '_' && !in_array($key,$this->_persistentVars)) {
+                unset($this->$key);
+            }
+        }
+    }
+
+    public function setGlobal($name,$data) {
+        self::__set($name,$data);
+        $this->_persistentVars[] = $name;
+    }
+
+    public function __set($name,$data) {
+        if ('_' != substr($name, 0, 1)) {
+            $this->$name = $data;
+            return;
+        }
+
+        throw new templates_exception('Setting private or protected class members is not allowed.',$this);
+    }
+
+    public function __unset($name) {
+        if ('_' != substr($name, 0, 1) && isset($this->$name)) {
+            unset($this->$name);
+        }
+    }
+    
     public function __isset($key) {
         $strpos = strpos($key,'_');
         if (!is_bool($strpos) && $strpos !== 0) {
