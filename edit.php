@@ -52,4 +52,4 @@ try {
 define('ON_EDIT', true);
 
 $tpl->title = "AYANS edit news";
-$tpl->render('save');
+echo $tpl->render('save');
