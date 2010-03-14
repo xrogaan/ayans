@@ -23,10 +23,37 @@ try {
     switch($page)
     {
         default:
-            if (file_exists('pages/' . $page . 'mdtxt') && is_readable('pages/' . $page . 'mdtxt')) {
-                $pageContent = file_get_contents('pages/' . $page . 'mdtxt');
-                file_put_contents(CACHE_PATH . "");
-                $tpl->content = Markdown($pageContent);
+            if (file_exists('pages/' . $page . 'mdtxt') && is_readable('pages/' . $page . 'mdtxt'))
+            {
+                // check the cache
+                $files = glob(TMP . $page . '*.mdcache');
+                $sha1 = sha1_file('pages/' . $page . 'mdtxt');
+                if (in_array("$page.$sha1.mdcache",$files)) { // ficher cache présent.
+                    $tpl->content = file_get_contents( TMP."$page.$sha1.mdcache" );
+                } else {
+                    $pageContent = file_get_contents('pages/' . $page . 'mdtxt');
+                    $sha1 = sha1_file('pages/' . $page . 'mdtxt');
+                    file_put_contents(TMP . "$page.$sha1.mdcache");
+                    $tpl->content = Markdown($pageContent);
+                }
+                
+                // some garbage collect, there is normaly 2 files in this array
+                if (count($files) > 1)
+                {
+                    foreach ($files as $filename)
+                    {
+                        if (!strpos($filename,$sha1))
+                        {
+                            unlink($filename);
+                        }
+                    }
+                }
+                
+            } else {
+                ob_start();
+                require_once($tpl->getTemplatePath() . '404.tpl.php');
+                echo ob_get_clean();
+                die;
             }
             break;
         case 'news':
