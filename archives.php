@@ -36,7 +36,7 @@ $pages = new paginate($num['elems'],20);
 $tpl->content = $news->render((isset($_GET['reload']) ? true : false),$pages);
 
 
-$tpl->render('archives');
+echo $tpl->render('archives');
 
 
 

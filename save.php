@@ -50,6 +50,6 @@ if (isset($_POST['password']) && PASSWORD != sha1($_POST['password'])) {
 
 }
 
-$tpl->render('save');
+echo $tpl->render('save');
 
 ?>
