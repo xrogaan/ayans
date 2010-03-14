@@ -1,11 +1,5 @@
 <?php
 
-require_once('FirePHPCore/FirePHP.class.php');
-$firephp = FirePHP::getInstance(true);
-$firephp->registerErrorHandler(true);
-$firephp->registerExceptionHandler();
-$firephp->registerAssertionHandler(true, false);
-
 require 'includes/config.inc.php';
 require INCLUDES_PATH.'prepend.php';
 
@@ -31,6 +25,7 @@ try {
         default:
             if (file_exists('pages/' . $page . 'mdtxt') && is_readable('pages/' . $page . 'mdtxt')) {
                 $pageContent = file_get_contents('pages/' . $page . 'mdtxt');
+                file_put_contents(CACHE_PATH . "");
                 $tpl->content = Markdown($pageContent);
             }
             break;
