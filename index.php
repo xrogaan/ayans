@@ -32,7 +32,6 @@ try {
                     $tpl->content = file_get_contents( TMP."$page.$sha1.mdcache" );
                 } else {
                     $pageContent = Markdown(file_get_contents('pages/' . $page . '.mdtxt'));
-                    $sha1 = sha1_file('pages/' . $page . '.mdtxt');
                     file_put_contents(TMP . "$page.$sha1.mdcache",$pageContent);
                     $tpl->content = $pageContent;
                 }
