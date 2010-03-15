@@ -23,7 +23,7 @@ try {
     switch($page)
     {
         default:
-            if (file_exists('pages/' . $page . 'mdtxt') && is_readable('pages/' . $page . 'mdtxt'))
+            if (file_exists('pages/' . $page . '.mdtxt') && is_readable('pages/' . $page . '.mdtxt'))
             {
                 // check the cache
                 $files = glob(TMP . $page . '*.mdcache');
