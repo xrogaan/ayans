@@ -20,7 +20,8 @@ if (isset($_ENV['TMP']) && !empty($_ENV['TMP']) && is_writable($_ENV['TMP'])) {
     define('TMP', $_ENV['TMP'].'/php/');
 } else {
     define('TMP', CACHE_PATH . '/tmp/');
-    if (!file_exists(TMP)) {
-        mkdir(TMP,0777,true);
-    }
+}
+
+if (!file_exists(TMP)) {
+    mkdir(TMP,0777,true);
 }
