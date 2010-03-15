@@ -27,13 +27,16 @@ try {
             {
                 // check the cache
                 $files = glob(TMP . $page . '*.mdcache');
+                $firephp->log($files,'Files in Cache');
                 $sha1 = sha1_file('pages/' . $page . '.mdtxt');
-                if (in_array("$page.$sha1.mdcache",$files)) { // ficher cache présent.
+                if (in_array(TMP . "$page.$sha1.mdcache",$files)) { // ficher cache présent.
                     $tpl->content = file_get_contents( TMP."$page.$sha1.mdcache" );
+                    $firephp->info('Cache used.');
                 } else {
                     $pageContent = Markdown(file_get_contents('pages/' . $page . '.mdtxt'));
                     file_put_contents(TMP . "$page.$sha1.mdcache",$pageContent);
                     $tpl->content = $pageContent;
+                    $firephp->info('Cache generated.');
                 }
                 
                 // some garbage collect, there is normaly 2 files in this array
