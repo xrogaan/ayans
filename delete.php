@@ -1,4 +1,8 @@
 <?php
+/**
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ * Original author: Ludovic Bellière <guru at xrogaan be>
+ */
 
 require 'includes/config.inc.php';
 require INCLUDES_PATH.'prepend.php';
