@@ -22,6 +22,11 @@ class Pages {
      * @var array
      */
     private $_cachedFiles = array();
+
+    /**
+     * Current sha1 of the file.
+     * @var string
+     */
     private $_currentSha1;
 
     /**
@@ -84,6 +89,7 @@ class Pages {
                 }
             }
         }
+        fclose($handle);
         
         self::parseMeta($meta);
     }
@@ -127,7 +133,9 @@ class Pages {
     }
 
     /**
-     * Do a garbage collect on older cached file relates to pagename
+     * Do a garbage collect on older cached file relates to pagename.
+     *
+     * There is usually 2 files in the array.
      */
     protected function cacheGarbageCollect() {
         self::populateCachedFiles();
