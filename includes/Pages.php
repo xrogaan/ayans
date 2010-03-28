@@ -9,6 +9,7 @@
 class Pages {
 
     protected $_meta = array();
+    protected $_filters = array();
     
     private $_filename;
     private $_pagename;
@@ -28,6 +29,12 @@ class Pages {
      * @var string
      */
     private $_currentSha1;
+
+    /**
+     * Current content of the file
+     * @var string
+     */
+    private $_fileContent;
 
     /**
      * Check if the page exists and call self::process().
@@ -64,6 +71,7 @@ class Pages {
     }
     
     protected function process() {
+        $this->_currentSha1 = sha1_file($this->_directory . $this->_filename);
         $handle = fopen($this->_directory . $this->_filename, 'r');
         
         $line   = 0;
@@ -90,15 +98,22 @@ class Pages {
             }
         }
         fclose($handle);
-        
+        $this->_fileContent = $content;
         self::parseMeta($meta);
+
     }
-    
+
+    /**
+     * Parse the meta string from the page. It must be in the ini format
+     *
+     * @param string $meta
+     * @return boolean
+     */
     protected function parseMeta($meta) {
         $this->_meta = parse_ini_string($meta);
 
         if (!in_array('title',$this->_meta)) {
-            throw new Exception('Unknow title for current page.');
+            throw new Exception('required parameter "title" is not set for the current page.');
         }
 
         return ($this->_meta != false) ? true : false;
@@ -108,8 +123,7 @@ class Pages {
         if (!$filename) {
             $filename = $this->_directory . $this->_filename;
         }
-        $this->_currentSha1 = sha1_file($file);
-        self::populateCachedFiles();
+        self::listCachedFiles();
         return in_array($this->_options['cache'] . $this->_pagename . '.' . $this->_currentSha1 . '.mdcache', $files);
     }
 
@@ -126,7 +140,7 @@ class Pages {
      *
      * @return void
      */
-    protected function populateCachedFiles() {
+    protected function listCachedFiles() {
         if (empty($this->_cachedFiles)) {
             $this->_cachedFiles = glob($this->_options['cache'] . $this->_pagename . '*.mdcache');
         }
@@ -138,7 +152,7 @@ class Pages {
      * There is usually 2 files in the array.
      */
     protected function cacheGarbageCollect() {
-        self::populateCachedFiles();
+        self::listCachedFiles();
         if (count($this->_cachedFiles) > 1)
         {
             foreach ($this->_cachedFiles as $filename)
@@ -150,6 +164,34 @@ class Pages {
             }
         }
     }
+
+    /**
+     * Add a filter on the page content.
+     *
+     * A filter must be a function with a single argument.
+     *
+     * @param mixed $funcName
+     * @param int $id
+     * @return Pages
+     */
+    public function add_filter($funcName,$id=false) {
+        if (!$id) {
+            $this->_filters[] = $funcName;
+        } else {
+            $this->_filters[$id] = $funcName;
+        }
+        ksort($this->_filters);
+        return $this;
+    }
+
+    protected function apply_filters() {
+        if (!empty($this->_filters) && !empty($this->_fileContent)) {
+            foreach($this->_filters as $filter) {
+                $this->_fileContent = call_user_func($filter, $this->_fileContent);
+            }
+        }
+    }
+
 
 }
 
