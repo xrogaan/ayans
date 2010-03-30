@@ -54,10 +54,10 @@ class Pages {
             $this->_directory = $directory;
         }
         $this->_pagename = $pagename;
-        $this->_filename = $pagename . '.mdtext';
+        $this->_filename = $pagename . '.mdtxt';
         
         if (!file_exists($this->_directory . $this->_filename)) {
-            throw new exception("Specified file doesn't exists.");
+            throw new exception("Specified file '".$this->_directory . $this->_filename."' doesn't exists.");
         } elseif (!is_readable($this->_directory . $this->_filename)) {
             throw new exception("Specified file can't be read.");
         }
@@ -65,9 +65,22 @@ class Pages {
         if (!empty($options)) {
             $this->_options = array_merge($this->_options, $options);
         }
-        
+
+        self::parse_options();
         self::process();
         return $this;
+    }
+
+    protected function parse_options() {
+        if (array_key_exists('filters', $this->_options)) {
+            if (!is_array($this->_options['filters'])) {
+                throw new Exception('Filters must be an array. "'.gettype($this->_options['filters']).'" given.');
+            }
+            foreach($this->_options['filters'] as $id => $filter) {
+                self::add_filter($filter,$id);
+            }
+            unset($this->_options['filters']);
+        }
     }
     
     protected function process() {
@@ -82,8 +95,8 @@ class Pages {
             $buffer = fgets($handle, 4096);
             if (trim($buffer) == '---' && !is_null($onMeta)) {
                 if ($onMeta === false) {
-                    if ($line != 0) {
-                        throw new LogicException("Meta information must be on the top of the file.");
+                    if ($line >= 2) {
+                        throw new LogicException("Meta information must be on the top of the file (line: $line).");
                     }
                     $onMeta = true;
                 } else {
@@ -91,7 +104,7 @@ class Pages {
                 }
             } else {
                 if ($onMeta) {
-                    $meta.= $buffer;
+                    $meta.= trim($buffer)."\n";
                 } else {
                     $content.= $buffer;
                 }
@@ -114,7 +127,7 @@ class Pages {
     protected function parse_meta($meta) {
         $this->_meta = parse_ini_string($meta);
 
-        if (!in_array('title',$this->_meta)) {
+        if (!array_key_exists('title',$this->_meta)) {
             throw new Exception('required parameter "title" is not set for the current page.');
         }
 
@@ -145,8 +158,8 @@ class Pages {
             $filename = self::get_cached_filename();
         }
 
-        self::listCachedFiles();
-        return in_array($filename, $files);
+        self::list_cached_files();
+        return in_array($filename, $this->_cachedFiles);
     }
 
     /**
@@ -170,7 +183,7 @@ class Pages {
      *
      * @return void
      */
-    protected function listCachedFiles() {
+    protected function list_cached_files() {
         if (empty($this->_cachedFiles)) {
             $this->_cachedFiles = glob($this->_options['cache'] . $this->_pagename . '*.mdcache');
         }
@@ -182,7 +195,7 @@ class Pages {
      * There is usually 2 files in the array.
      */
     protected function cache_garbage_collect() {
-        self::listCachedFiles();
+        self::list_cached_files();
         if (count($this->_cachedFiles) > 1)
         {
             foreach ($this->_cachedFiles as $filename)
@@ -224,6 +237,10 @@ class Pages {
 
     public function get_content() {
         return $this->_fileContent;
+    }
+
+    public function get_meta() {
+        return $this->_meta;
     }
 }
 
