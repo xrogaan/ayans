@@ -11,7 +11,7 @@ $errornot = Services_ErrorNot::getInstance(true)
         ->setUrl('http://127.0.0.1:3000')
         ->registerExceptionHandler();
 
-
+/*
 function error_handler($errno, $errstr, $errfile, $errline, $errcontext ) {
     global $old;
     $er = Services_ErrorNot::getInstance();
@@ -28,6 +28,11 @@ function error_handler($errno, $errstr, $errfile, $errline, $errcontext ) {
     }
 }
 $old = set_error_handler("error_handler");
+*/
+function exception_error_handler($errno, $errstr, $errfile, $errline ) {
+    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+}
+set_error_handler("exception_error_handler");
 
 require INCLUDES_PATH.'markdown.php';
 require INCLUDES_PATH.'templates.php';
