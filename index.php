@@ -7,12 +7,7 @@
 require 'includes/config.inc.php';
 require INCLUDES_PATH.'prepend.php';
 
-if (APPLICATION_ENVIRONMENT == 'production') {
-    $firephp->setEnabled(false);
-}
-
 $page = (!empty($_GET['p']))?$_GET['p']:'index';
-$firephp->log($page, 'pagename');
 
 try {
     $pdo  = new PDO(DBH);
@@ -29,32 +24,9 @@ try {
         default:
             if (file_exists('pages/' . $page . '.mdtxt') && is_readable('pages/' . $page . '.mdtxt'))
             {
-                // check the cache
-                $files = glob(TMP . $page . '*.mdcache');
-                $firephp->log($files,'Files in Cache');
-                $sha1 = sha1_file('pages/' . $page . '.mdtxt');
-                if (in_array(TMP . "$page.$sha1.mdcache",$files)) { // ficher cache présent.
-                    $tpl->content = file_get_contents( TMP."$page.$sha1.mdcache" );
-                    $firephp->info('Cache used.');
-                } else {
-                    $pageContent = Markdown(file_get_contents('pages/' . $page . '.mdtxt'));
-                    file_put_contents(TMP . "$page.$sha1.mdcache",$pageContent);
-                    $tpl->content = $pageContent;
-                    $firephp->info('Cache generated.');
-                }
-                
-                // some garbage collect, there is normaly 2 files in this array
-                if (count($files) > 1)
-                {
-                    foreach ($files as $filename)
-                    {
-                        if (!strpos($filename,$sha1))
-                        {
-                            unlink($filename);
-                        }
-                    }
-                }
-                
+                $pages = new Pages($page, 'pages/', array('filters'=>array('Markdown')));
+                $tpl->content = $pages->get_content();
+                $tpl->meta = $pages->get_meta();
             } else {
                 ob_start();
                 require_once($tpl->getTemplatePath() . '404.tpl.php');
@@ -85,14 +57,18 @@ try {
     if (defined('APPLICATION_ENVIRONMENT')
         && APPLICATION_ENVIRONMENT != 'production'
     ) {
-        echo '<br /><br />' . $exception->getMessage() . '<br />'
-           . '<div align="left">Stack Trace:' 
-           . '<pre>' . $exception->getTraceAsString() . '</pre></div>';
-           if ($exception instanceof PDOException) {
-                $trace = $exception->getTrace();
-                echo '<div align="left">Query Trace:'
-                . '<pre>' . $trace[0]['args'][0] . '</pre></div>';
-        }
+        do {
+            $errornot = Services_ErrorNot::getInstance();
+            $errornot->notifyException($exception);
+            echo '<br /><br />' . $exception->getMessage() . '<br />'
+               . '<div align="left">Stack Trace:'
+               . '<pre>' . $exception->getTraceAsString() . '</pre></div>';
+               if ($exception instanceof PDOException) {
+                    $trace = $exception->getTrace();
+                    echo '<div align="left">Query Trace:'
+                    . '<pre>' . $trace[0]['args'][0] . '</pre></div>';
+            }
+        } while($exception = $exception->getPrevious());
     }
     echo '</center></body></html>';
     exit(1);
