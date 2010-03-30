@@ -1,7 +1,7 @@
 Options +FollowSymLinks -Indexes -MultiViews
 
 RewriteEngine On
-RewriteBase /poyon/website
+RewriteBase /news
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_URI} /.* [OR]
