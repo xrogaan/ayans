@@ -99,7 +99,9 @@ class Pages {
         }
         fclose($handle);
         $this->_fileContent = $content;
-        self::parseMeta($meta);
+        self::parse_meta($meta);
+        self::apply_filters();
+        self::fills_cache();
 
     }
 
@@ -109,7 +111,7 @@ class Pages {
      * @param string $meta
      * @return boolean
      */
-    protected function parseMeta($meta) {
+    protected function parse_meta($meta) {
         $this->_meta = parse_ini_string($meta);
 
         if (!in_array('title',$this->_meta)) {
@@ -118,21 +120,49 @@ class Pages {
 
         return ($this->_meta != false) ? true : false;
     }
-    
-    public function cachedFileExists($filename=false, $directory=false) {
-        if (!$filename) {
-            $filename = $this->_directory . $this->_filename;
+
+    protected function fills_cache() {
+        if (!self::cached_file_exists()) {
+            file_put_contents(self::get_cached_filename(), $this->_fileContent, LOCK_EX);
         }
+        self::cache_garbage_collect();
+
+        return true;
+    }
+    
+    public function cached_file_exists($directory=false) {
+        if ($directory) {
+            if (file_exists($this->_options['cache'] . $directory)) {
+                $filename = $this->_options['cache'] . $directory . self::get_cached_filename(false);
+            } elseif (file_exists($directory)) {
+                $filename = $directory . self::get_cached_filename(false);
+            } else {
+                // using default cache setting
+                $directory = false;
+            }
+        }
+        if (!$directory) {
+            $filename = self::get_cached_filename();
+        }
+
         self::listCachedFiles();
-        return in_array($this->_options['cache'] . $this->_pagename . '.' . $this->_currentSha1 . '.mdcache', $files);
+        return in_array($filename, $files);
     }
 
     /**
      * Return the current cached files
      * @return string
      */
-    public function getCachedFilename() {
-        return $this->_options['cache'] . $this->_pagename . '.' . $this->_currentSha1 . '.mdcache';
+    public function get_cached_filename($appendCacheDir=true) {
+        $appendCacheDir = (bool) $appendCacheDir;
+        $file           = '';
+        
+        if ($appendCacheDir) {
+            $file.= $this->_options['cache'];
+        }
+        $file.= $this->_pagename . '.' . $this->_currentSha1 . '.mdcache';
+
+        return $file;
     }
 
     /**
@@ -151,7 +181,7 @@ class Pages {
      *
      * There is usually 2 files in the array.
      */
-    protected function cacheGarbageCollect() {
+    protected function cache_garbage_collect() {
         self::listCachedFiles();
         if (count($this->_cachedFiles) > 1)
         {
@@ -192,6 +222,8 @@ class Pages {
         }
     }
 
-
+    public function get_content() {
+        return $this->_fileContent;
+    }
 }
 
