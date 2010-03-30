@@ -33,12 +33,10 @@ class templates {
     protected $_options = array();
 
     private $_escape = array('htmlentities');
-    protected $_firephp;
 
     public function __construct($template_path='./templates/',$options=array()) {
         $this->_templatePath = $template_path;
         $this->_options = array_merge($this->_options,$options);
-        $this->_firephp = FirePHP::getInstance();
     }
 
     /**
@@ -68,7 +66,6 @@ class templates {
      * @param array|string $tag
      */
     public function render($tag) {
-        $this->_firephp->log($this->_files,'Templates');
         ob_start();
         try {
             if (isset($this->_files['_begin'])) {
