@@ -56,7 +56,10 @@ class paginate {
         self::set_current_page();
     }
 
-    public function paginate($pageurl) {
+    public function getLinks($pageurl) {
+        if ($this->elements == 0) {
+            return 'Aucune page.';
+        }
         $this->number_of_pages = ceil($this->elements / $this->limit_by_page);
         if ($this->number_of_pages == 1) {
             return "Page : 1.";
