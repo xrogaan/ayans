@@ -2,15 +2,17 @@
 /**
  * @category News
  * @package News_Paginate
- * @copyright Copyright (c) 2008, Bellière Ludovic
+ * @copyright Copyright (c) 2008-2010, Bellière Ludovic
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
 
 /**
+ * Do stuff based on a page number and the number of elements to show
+ *
  * @author Bellière Ludovic
  * @category News
  * @package News_Paginate
- * @copyright Copyright (c) 2008, Bellière Ludovic
+ * @copyright Copyright (c) 2008-2010, Bellière Ludovic
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
 class paginate {
@@ -56,6 +58,12 @@ class paginate {
         self::set_current_page();
     }
 
+    /**
+     * Return a set of pointer to differents pages.
+     *
+     * @param string $pageurl
+     * @return string
+     */
     public function getLinks($pageurl) {
         if ($this->elements == 0) {
             return 'Aucune page.';
@@ -64,7 +72,7 @@ class paginate {
         if ($this->number_of_pages == 1) {
             return "Page : 1.";
         } else {
-                     $pageurl = strpos($pageurl, '?') ? $pageurl.'&amp;' : $pageurl.'?';
+            $pageurl = strpos($pageurl, '?') ? $pageurl.'&amp;' : $pageurl.'?';
             $i=1;
             $txt = ($this->current_page === 1) ? '' : '&lt; <a href="'.$pageurl.$this->page_variable.'='.($this->current_page-1).'">précédent</a> | ';
             while($i < $this->number_of_pages) {
@@ -89,10 +97,10 @@ class paginate {
     }
 
     protected function set_current_page() {
-        if (empty($_GET['p'])) {
+        if (empty($_GET[$this->page_variable])) {
             $this->current_page = 1;
         } else {
-            $this->current_page = intval($_GET['p']);
+            $this->current_page = intval($_GET[$this->page_variable]);
         }
     }
 
