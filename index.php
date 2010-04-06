@@ -19,6 +19,12 @@ try {
     $tpl->addFile('_end','footer.tpl.php');
     $tpl->addFile('index','index.tpl.php');
     
+    $news->setPDO($pdo);
+    $news->add_filter('Markdown',    'text');
+    $news->add_filter('utf8_decode', 'title');
+    $news->add_filter('htmlentities','title');
+    $news->add_filter('set_bolder',  'author');
+    
     switch($page)
     {
         default:
@@ -27,6 +33,7 @@ try {
                 $pages = new Pages($page, 'pages/', array('filters'=>array('Markdown')));
                 $tpl->content = $pages->get_content();
                 $tpl->meta = $pages->get_meta();
+                $tpl->news = $news->render(true, true, news_node::FORMAT_LIGHT);
             } else {
                 ob_start();
                 require_once($tpl->getTemplatePath() . '404.tpl.php');
@@ -35,17 +42,7 @@ try {
             }
             break;
         case 'news':
-            $news->setPDO($pdo);
             $news->setView(news_node::DEFAULT_VIEW);
-            $news->add_filter('Markdown','text');
-
-            // Comment this if you have some charset problems in cache
-            $news->add_filter('utf8_decode','title');
-            // -----
-
-            $news->add_filter('htmlentities','title');
-            $news->add_filter('set_bolder','author');
-            
             $tpl->content = $news->render((isset($_GET['reload']) ? true : false), true, news_node::FORMAT_FULL);
             break;
     }
