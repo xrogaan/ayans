@@ -17,7 +17,6 @@ try {
     
     $tpl->addFile('_begin','header.tpl.php');
     $tpl->addFile('_end','footer.tpl.php');
-    $tpl->addFile('index','index.tpl.php');
     
     $news->setPDO($pdo);
     $news->add_filter('Markdown',    'text');
@@ -30,10 +29,12 @@ try {
         default:
             if (file_exists('pages/' . $page . '.mdtxt') && is_readable('pages/' . $page . '.mdtxt'))
             {
+                $tpl->addFile('page','page.tpl.php');
                 $pages = new Pages($page, 'pages/', array('filters'=>array('Markdown')));
                 $tpl->content = $pages->get_content();
                 $tpl->meta = $pages->get_meta();
-                $tpl->news = $news->render(true, true, news_node::FORMAT_LIGHT);
+                $tpl->news = $news->render(true, false, news_node::FORMAT_LIGHT);
+                echo $tpl->render('page');
             } else {
                 ob_start();
                 require_once($tpl->getTemplatePath() . '404.tpl.php');
@@ -42,8 +43,10 @@ try {
             }
             break;
         case 'news':
+            $tpl->addFile('news','news.tpl.php');
             $news->setView(news_node::DEFAULT_VIEW);
             $tpl->content = $news->render((isset($_GET['reload']) ? true : false), true, news_node::FORMAT_FULL);
+            echo $tpl->render('news');
             break;
     }
     
@@ -71,6 +74,3 @@ try {
     exit(1);
 }
 
-echo $tpl->render('index');
-
-?>
