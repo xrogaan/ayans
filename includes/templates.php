@@ -38,6 +38,23 @@ class templates {
         $this->_templatePath = $template_path;
         $this->_options = array_merge($this->_options,$options);
     }
+    
+    /**
+     * Return an option
+     *
+     * @param string $key search for $key in $_options
+     * @param string|null $default default value returned instead of empty data
+     * @return string|array
+     */
+    function getOptions($key=null,$default=null) {
+        if (is_null($key)) {
+            return $this->_options;
+        } elseif (isset($this->_options[$key])) {
+            return $this->_options[$key];
+        } else {
+            return $default;
+        }
+    }
 
     /**
      * Return the current tempalte path
@@ -64,6 +81,7 @@ class templates {
      * $tag can be an array for multi-templates page.
      *
      * @param array|string $tag
+     * @return string
      */
     public function render($tag) {
         ob_start();
