@@ -29,11 +29,18 @@ try {
         default:
             if (file_exists('pages/' . $page . '.mdtxt') && is_readable('pages/' . $page . '.mdtxt'))
             {
-                $tpl->addFile('page','page.tpl.php');
                 $pages = new Pages($page, 'pages/', array('filters'=>array('Markdown')));
+                
+                $layout = $pages->get_layout();
+                if ($layout != 'default' && !file_exists($tpl->getTemplatePath().$layout.'.tpl.php')) {
+                    $layout = 'default';
+                }
+
+                $tpl->addFile('page', $layout.'.tpl.php');
+                $tpl->page    = $page;
                 $tpl->content = $pages->get_content();
-                $tpl->meta = $pages->get_meta();
-                $tpl->news = $news->render(true, false, news_node::FORMAT_LIGHT);
+                $tpl->meta    = $pages->get_meta();
+                $tpl->news    = $news->render(true, false, news_node::FORMAT_LIGHT);
                 echo $tpl->render('page');
             } else {
                 ob_start();
