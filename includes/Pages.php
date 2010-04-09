@@ -242,5 +242,13 @@ class Pages {
     public function get_meta() {
         return $this->_meta;
     }
+
+    public function get_layout() {
+        if (array_key_exists('layout', $this->_meta)) {
+            return $this->_meta['layout'];
+        } else {
+            return 'default';
+        }
+    }
 }
 
