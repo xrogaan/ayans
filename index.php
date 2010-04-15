@@ -27,6 +27,7 @@ try {
     switch($page)
     {
         default:
+            // FIXME Is is a bad way to check if the requested page exists. Must be moved to the Pages object.
             if (file_exists('pages/' . $page . '.mdtxt') && is_readable('pages/' . $page . '.mdtxt'))
             {
                 $pages = new Pages($page, 'pages/', array('filters'=>array('Markdown')));
@@ -41,10 +42,10 @@ try {
                 }
 
                 $tpl->addFile('page', $layout.'.tpl.php');
+                $tpl->assign($pages->get_meta());
+                $tpl->assign('content', $pages->get_content());
+                $tpl->assign('news', $news->render(true, false, news_node::FORMAT_LIGHT));
                 $tpl->page    = $page;
-                $tpl->content = $pages->get_content();
-                $tpl->meta    = $pages->get_meta();
-                $tpl->news    = $news->render(true, false, news_node::FORMAT_LIGHT);
                 echo $tpl->render('page');
             } else {
                 ob_start();
