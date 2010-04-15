@@ -128,7 +128,7 @@ class Pages {
         $this->_meta = parse_ini_string($meta);
 
         if (!array_key_exists('title',$this->_meta)) {
-            throw new Exception('required parameter "title" is not set for the current page.');
+            $this->_meta['title'] = $this->_pagename;
         }
 
         return ($this->_meta != false) ? true : false;
