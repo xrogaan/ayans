@@ -32,8 +32,12 @@ try {
                 $pages = new Pages($page, 'pages/', array('filters'=>array('Markdown')));
                 
                 $layout = $pages->get_layout();
-                if ($layout != 'default' && !file_exists($tpl->getTemplatePath().$layout.'.tpl.php')) {
-                    $layout = 'default';
+                if (!$tpl->templateExists($layout . '.tpl.php')) {
+                    if ($layout != 'default' && $tpl->templateExists('default.tpl.php')) {
+                        $layout = 'default';
+                    } else {
+                        throw new ErrorNotException("Can't load desired page.", 0, array('layout'=>$layout));
+                    }
                 }
 
                 $tpl->addFile('page', $layout.'.tpl.php');
@@ -69,7 +73,7 @@ try {
             $errornot->notifyException($exception);
             echo '<br /><br />' . $exception->getMessage() . '<br />'
                . '<div align="left">Stack Trace:'
-               . '<pre>' . $exception->getTraceAsString() . '</pre></div>';
+               . '<pre>' . htmlentities($exception->getTraceAsString()) . '</pre></div>';
                if ($exception instanceof PDOException) {
                     $trace = $exception->getTrace();
                     echo '<div align="left">Query Trace:'

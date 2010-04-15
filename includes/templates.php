@@ -125,6 +125,13 @@ class templates {
         }
     }
 
+    public function templateExists($file) {
+        if (!file_exists($this->_templatePath . $file)) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Used to set some functions who escape the content
      *
