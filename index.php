@@ -13,7 +13,6 @@ try {
     $pdo  = new PDO(DBH);
     $tpl  = new templates();
     $news = new news_node();
-    $tpl->title = "empty";
     
     $tpl->addFile('_begin','header.tpl.php');
     $tpl->addFile('_end','footer.tpl.php');
