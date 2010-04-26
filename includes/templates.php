@@ -28,14 +28,16 @@ class templates {
      *
      * @var string
      */
-    protected $_templatePath;
+    static protected $_templatePath = './templates/';
     
     protected $_options = array();
 
     private $_escape = array('htmlentities');
 
-    public function __construct($template_path='./templates/',$options=array()) {
-        $this->_templatePath = $template_path;
+    public function __construct($template_path='',$options=array()) {
+        if (!$template_path) {
+            static::$_templatePath = $template_path;
+        }
         $this->_options = array_merge($this->_options,$options);
     }
     
@@ -61,8 +63,8 @@ class templates {
      *
      * @return string
      */
-    public function getTemplatePath() {
-        return $this->_templatePath;
+    static public function getTemplatePath() {
+        return static::$_templatePath;
     }
 
     /**
@@ -116,17 +118,25 @@ class templates {
      * Check if the template file is readable and returns its name
      *
      * @param string $tag
+     * @return string
+     * @throw template_exception on missing file
      */
     private function _file($tag) {
-        if (is_readable($this->_templatePath.$this->_files[$tag])) {
-            return $this->_templatePath.$this->_files[$tag];
+        if (is_readable(static::$_templatePath.$this->_files[$tag])) {
+            return static::$_templatePath.$this->_files[$tag];
         } else {
             throw new templates_exception('The file <em>'.$this->_templatePath.$this->_files[$tag]. '</em> is not readable');
         }
     }
 
-    public function templateExists($file) {
-        if (!file_exists($this->_templatePath . $file)) {
+    /**
+     * Return true if the given template file exists.
+     *
+     * @param string $file
+     * @return boolean
+     */
+    static public function templateExists($file) {
+        if (!file_exists(static::$_templatePath . $file)) {
             return false;
         }
         return true;
@@ -190,7 +200,7 @@ class templates {
             } else {
                 throw new templates_exception('Argument 2 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be a string or an array, ' . gettype($arguments) . ' given.');
             }
-        } catch (Taplod_Templates_Exception $e) {
+        } catch (templates_exception $e) {
             throw $e;
         }
         return $this;
