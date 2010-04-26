@@ -26,32 +26,23 @@ try {
     switch($page)
     {
         default:
-            // FIXME Is is a bad way to check if the requested page exists. Must be moved to the Pages object.
-            if (file_exists('pages/' . $page . '.mdtxt') && is_readable('pages/' . $page . '.mdtxt'))
-            {
-                $pages = new Pages($page, 'pages/', array('filters'=>array('Markdown')));
-                
-                $layout = $pages->get_layout();
-                if (!$tpl->templateExists($layout . '.tpl.php')) {
-                    if ($layout != 'default' && $tpl->templateExists('default.tpl.php')) {
-                        $layout = 'default';
-                    } else {
-                        throw new ErrorNotException("Can't load desired page.", 0, array('layout'=>$layout));
-                    }
-                }
+            $pages = new Pages($page, 'pages/', array('filters'=>array('Markdown')));
 
-                $tpl->addFile('page', $layout.'.tpl.php');
-                $tpl->assign($pages->get_meta());
-                $tpl->assign('content', $pages->get_content());
-                $tpl->assign('news', $news->render(true, false, news_node::FORMAT_LIGHT));
-                $tpl->page    = $page;
-                echo $tpl->render('page');
-            } else {
-                ob_start();
-                require_once($tpl->getTemplatePath() . '404.tpl.php');
-                echo ob_get_clean();
-                die;
+            $layout = $pages->get_layout();
+            if (!$tpl->templateExists($layout . '.tpl.php')) {
+                if ($layout != 'default' && $tpl->templateExists('default.tpl.php')) {
+                    $layout = 'default';
+                } else {
+                    throw new ErrorNotException("Can't load desired page.", 0, array('layout'=>$layout));
+                }
             }
+
+            $tpl->addFile('page', $layout.'.tpl.php');
+            $tpl->assign($pages->get_meta());
+            $tpl->assign('content', $pages->get_content());
+            $tpl->assign('news', $news->render(true, false, news_node::FORMAT_LIGHT));
+            $tpl->page    = $page;
+            echo $tpl->render('page');
             break;
         case 'news':
             $tpl->addFile('news','news.tpl.php');
