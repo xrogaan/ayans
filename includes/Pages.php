@@ -56,10 +56,11 @@ class Pages {
         $this->_pagename = $pagename;
         $this->_filename = $pagename . '.mdtxt';
         
-        if (!file_exists($this->_directory . $this->_filename)) {
-            throw new exception("Specified file '".$this->_directory . $this->_filename."' doesn't exists.");
-        } elseif (!is_readable($this->_directory . $this->_filename)) {
-            throw new exception("Specified file can't be read.");
+        if (!file_exists($this->_directory . $this->_filename) OR !is_readable($this->_directory . $this->_filename)) {
+            ob_start();
+            templates::getTemplatePath() . '404.tpl.php';
+            echo ob_get_clean();
+            die;
         }
 
         if (!empty($options)) {
