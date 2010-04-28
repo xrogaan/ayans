@@ -13,9 +13,9 @@ define('PASSWORD', 'a94a8fe5ccb19ba61c4c0873d391e987982fbbd3');
  */
 define('DBH', 'sqlite:'.dirname(__FILE__).'/../news.sq3');
 
-define('CACHE_PATH',    dirname(__FILE__).'/cache/');
-define('PAGES_CACHE_PATH',    CACHE_PATH . '/pages/');
-define('INCLUDES_PATH', dirname(__FILE__).'/includes/');
+define('CACHE_PATH',       dirname(__FILE__).'/../cache/');
+define('PAGES_CACHE_PATH', CACHE_PATH . '/pages/');
+define('INCLUDES_PATH',    dirname(__FILE__).'/../includes/');
 
 
 if (isset($_ENV['TMP']) && !empty($_ENV['TMP']) && is_writable($_ENV['TMP'])) {
