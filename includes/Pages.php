@@ -15,7 +15,7 @@ class Pages {
     private $_pagename;
     private $_directory;
     private $_options = array(
-        'cache' => TMP,
+        'cache' => PAGES_CACHE_PATH,
     );
 
     /**
