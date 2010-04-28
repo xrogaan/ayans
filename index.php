@@ -29,11 +29,11 @@ try {
             $pages = new Pages($page, 'pages/', array('filters'=>array('Markdown')));
 
             $layout = $pages->get_layout();
-            if (!$tpl->templateExists($layout . '.tpl.php')) {
-                if ($layout != 'default' && $tpl->templateExists('default.tpl.php')) {
+            if (!templates::templateExists($layout . '.tpl.php')) {
+                if ($layout != 'default' && templates::templateExists('default.tpl.php')) {
                     $layout = 'default';
                 } else {
-                    throw new ErrorNotException("Can't load desired page.", 0, array('layout'=>$layout));
+                    throw new ErrorNotException("Can't load desired page ($layout).", 0, array('layout'=>$layout));
                 }
             }
 
