@@ -67,6 +67,10 @@ class Pages {
             $this->_options = array_merge($this->_options, $options);
         }
 
+        if (!file_exists($this->_options['cache'])) {
+            mkdir($this->_options['cache'],0777,true);
+        }
+
         self::parse_options();
         self::process();
         return $this;
