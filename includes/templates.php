@@ -35,7 +35,7 @@ class templates {
     private $_escape = array('htmlentities');
 
     public function __construct($template_path='',$options=array()) {
-        if (!$template_path) {
+        if (!empty($template_path)) {
             static::$_templatePath = $template_path;
         }
         $this->_options = array_merge($this->_options,$options);
