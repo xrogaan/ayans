@@ -25,6 +25,30 @@ try {
     
     switch($page)
     {
+        case 'contact':
+            require INCLUDE_PATH . 'recaptchalib.php';
+            $resp  = null;
+            $tpl->error = null;
+            if (isset($_POST['recaptcha_response_field'])) {
+                $resp = recaptcha_check_answer(RECAPTCHA_PRIVATEKEY,
+                                               $_SERVER['REMOTE_ADDR'],
+                                               $_POST['recaptcha_challenge_field'],
+                                               $_POST['repaptcha_response_field']);
+                if ($resp->is_valid) {
+                    // send mail
+                    // name, email, comment
+                    $name = trim($_POST['name']);
+                    $email = trim($_POST['email']);
+                    $comment = trim($_POST['comment']);
+                    $message = "Name : $name\nEmail : $email\n\n----\n\nMessage : $comment";
+                    $headers = 'From: '. EMAIL . "\r\n" .
+                               'Reply-To: '. EMAIL . "\r\n" .
+                               'X-Mailer: PHP/' . phpversion();
+                    //mail(EMAIL, '[poyoninfo.be] New message from '.$name, $message, $headers);
+                } else {
+                    $tpl->error = $resp->error;
+                }
+            }
         default:
             $pages = new Pages($page, 'pages/', array('filters'=>array('Markdown')));
 
