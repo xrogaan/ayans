@@ -58,7 +58,7 @@ function captcha($uniqid=false) {
     $pdo  = new PDO(DBH);
     
     // garbage collect
-    $pdo->query("DELETE FROM captcha WHERE ".time()-7200." >= createdon  ");
+    $pdo->query("DELETE FROM captcha WHERE " . (time()-7200) . " >= createdon");
     
     if (!$uniqid) {
         $min = 1;
