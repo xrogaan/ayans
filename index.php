@@ -26,7 +26,7 @@ try {
     switch($page)
     {
         case 'contact':
-            require INCLUDE_PATH . 'recaptchalib.php';
+            require INCLUDES_PATH . 'recaptchalib.php';
             $resp  = null;
             $tpl->error = null;
             if (isset($_POST['recaptcha_response_field'])) {
