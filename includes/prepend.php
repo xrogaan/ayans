@@ -4,12 +4,13 @@ if (APPLICATION_ENVIRONMENT != 'production') {
 	error_reporting(E_ALL);
 }
 
-require_once('HTTP/Request2.php');
+/*require_once('HTTP/Request2.php');
 require_once(INCLUDES_PATH.'errornot.php');
 $errornot = Services_ErrorNot::getInstance(true)
         ->setApi('cf12b1dfeb03cef327f92a1e')
         ->setUrl('http://127.0.0.1:3000')
         ->registerExceptionHandler();
+*/
 
 /*
 function error_handler($errno, $errstr, $errfile, $errline, $errcontext ) {
@@ -28,11 +29,13 @@ function error_handler($errno, $errstr, $errfile, $errline, $errcontext ) {
     }
 }
 $old = set_error_handler("error_handler");
-*/
-function exception_error_handler($errno, $errstr, $errfile, $errline ) {
+ */
+
+/*function exception_error_handler($errno, $errstr, $errfile, $errline ) {
     throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 }
 set_error_handler("exception_error_handler");
+*/
 
 require INCLUDES_PATH.'markdown.php';
 require INCLUDES_PATH.'templates.php';
