@@ -18,6 +18,7 @@ try {
     $tpl->addFile('_end','footer.tpl.php');
     
     $news->setPDO($pdo);
+    $news->add_filter('trim',        'text');
     $news->add_filter('Markdown',    'text');
     $news->add_filter('utf8_decode', 'title');
     $news->add_filter('htmlentities','title');
@@ -26,25 +27,25 @@ try {
     switch($page)
     {
         case 'contact':
-            require INCLUDES_PATH . 'recaptchalib.php';
+            require INCLUDES_PATH . '/recaptchalib.php';
             $resp  = null;
             $tpl->error = null;
             if (isset($_POST['recaptcha_response_field'])) {
                 $resp = recaptcha_check_answer(RECAPTCHA_PRIVATEKEY,
                                                $_SERVER['REMOTE_ADDR'],
                                                $_POST['recaptcha_challenge_field'],
-                                               $_POST['repaptcha_response_field']);
+                                               $_POST['recaptcha_response_field']);
                 if ($resp->is_valid) {
                     // send mail
                     // name, email, comment
-                    $name = trim($_POST['name']);
-                    $email = trim($_POST['email']);
+                    $name    = trim($_POST['name']);
+                    $email   = trim($_POST['email']);
                     $comment = trim($_POST['comment']);
                     $message = "Name : $name\nEmail : $email\n\n----\n\nMessage : $comment";
                     $headers = 'From: '. EMAIL . "\r\n" .
                                'Reply-To: '. EMAIL . "\r\n" .
                                'X-Mailer: PHP/' . phpversion();
-                    //mail(EMAIL, '[poyoninfo.be] New message from '.$name, $message, $headers);
+                    $tpl->mailer = mail(EMAIL, '[poyoninfo.be] New message from '.$name, $message, $headers);
                 } else {
                     $tpl->error = $resp->error;
                 }
@@ -64,13 +65,15 @@ try {
             $tpl->addFile('page', $layout.'.tpl.php');
             $tpl->assign($pages->get_meta());
             $tpl->assign('content', $pages->get_content());
-            $tpl->assign('news', $news->render(true, false, news_node::FORMAT_LIGHT));
+            $tpl->assign('news', $news->render(false, false, news_node::FORMAT_LIGHT));
             $tpl->page    = $page;
             echo $tpl->render('page');
             break;
         case 'news':
             $tpl->addFile('news','news.tpl.php');
             $news->setView(news_node::DEFAULT_VIEW);
+            $tpl->node    = "Nouvelles";
+            $tpl->title   = "Nouvelles";
             $tpl->content = $news->render((isset($_GET['reload']) ? true : false), true, news_node::FORMAT_FULL);
             echo $tpl->render('news');
             break;
