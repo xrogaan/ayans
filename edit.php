@@ -32,7 +32,7 @@ try {
     } elseif (isset($_POST['password']) && PASSWORD == sha1($_POST['password'])) {
         $tpl->input_title = (!empty($_POST['title'])) ? trim($_POST['title']) : $data['title'];
         $tpl->input_text = (!empty($_POST['text'])) ? trim($_POST['text']) : $data['text'];
-        $uq = $pdo->exec('UPDATE news SET text='. $pdo->quote($tpl->input_title) .', title='. $pdo->quote($tpl->input_text) .', editon='.$pdo->quote(time()).' WHERE id='.$pdo->quote($idNews));
+        $uq = $pdo->exec('UPDATE news SET title='. $pdo->quote($tpl->input_title) .', text='. $pdo->quote($tpl->input_text) .', editon='.$pdo->quote(time()).' WHERE id='.$pdo->quote($idNews));
         if ($uq === false) {
             echo "\nError on UPDATE : <br/>";
             $x = $pdo->errorInfo();
