@@ -206,7 +206,7 @@ class news_node implements Countable {
             }
             // ---
             foreach ($cacheData as $file) {
-                if ($file[0] == '.' || strpos($file,'.minimal')) {
+                if ($file[0] == '.' || strpos($file,'.minimal') || is_dir(CACHE_PATH.$file)) {
                     continue;
                 }
                 $id = substr($file,2);
