@@ -1,54 +1,43 @@
---- README
-+++ README
-@@ -1,13 +1,43 @@
--Requirements:
-+# Scope Statement : The super and awesome website of doom
-+
-+This document intend to help noobs, in fact, nobody read this.
-+
-+## Requirements:
- 
- apache 2.0
--sqlite
-+sqlite3
- php 5.3
- pdo-sqlite
- 
--Optionnal:
--ErrorNot
-- * Rails 2.3.5
--php-errornot
-- * HTTP_Request2 (pear)
-- * NET_Url2 (pear)
-+## Creating pages
-+
-+You have already some files in the pages/ subdirectory. You can look
-+them to get a big idea of how this system works. You'll needs to read
-+and learn the [markdown](http://en.wikipedia.org/wiki/Markdown) markup
-+language.
-+
-+### Design of the pages.mdtxt files
-+
-+There are two part in this files : a header and the page content.
-+
-+The header is encapsulated into two set of three dash (---). Each
-+line contain a variable used by the system. Actually, only two are
-+used :
-+
-+* title : to set the page title
-+* layout : to define the template to use
-+
-+The layout variable refer to the first part of the template filename.
-+If the template filename is "index.tpl.php" then, the layout needs to
-+be set to "index". It is recommended to write the values surrounded
-+in quotes.
-+
-+#### Sample
-+
-+---
-+title = "sample"
-+layout = "sample"
-+---
-+I'm a sample. Dummy text for everyones.
-+
-+Blah blah blah
+# Scope Statement : The super and awesome website of doom
+
+This document intend to help noobs, in fact, nobody read this.
+
+## Requirements:
+
+apache 2.0
+sqlite3
+php 5.3
+pdo-sqlite
+
+## Creating pages
+
+You have already some files in the pages/ subdirectory. You can look
+them to get a big idea of how this system works. You'll needs to read
+and learn the [markdown](http://en.wikipedia.org/wiki/Markdown) markup
+language.
+
+### Design of the pages.mdtxt files
+
+There are two part in this files : a header and the page content.
+
+The header is encapsulated into two set of three dash (---). Each
+line contain a variable used by the system. Actually, only two are
+used :
+
+* title : to set the page title
+* layout : to define the template to use
+
+The layout variable refer to the first part of the template filename.
+If the template filename is "index.tpl.php" then, the layout needs to
+be set to "index". It is recommended to write the values surrounded
+in quotes.
+
+#### Sample
+
+---
+title = "sample"
+layout = "sample"
+---
+I'm a sample. Dummy text for everyones.
+
+Blah blah blah
